@@ -1,0 +1,403 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Doctor Panel — overlay close</title>
+<style>
+
+  body {
+    background: #f3f4f6 !important; /* light gray */
+    font-family: 'Inter', sans-serif;
+  }
+
+  header {
+  background: #1f2937 !important;
+  color: white !important;
+}
+
+
+  .sidebar{
+  background:#ffffff;
+  color:#000;
+  box-shadow:0 4px 12px rgba(0,0,0,0.12);
+}
+
+
+  .menu-item{
+  background:#ffffff;
+  color:#111;
+  border-radius:10px;
+  padding:12px;
+}
+.menu-item:hover{
+  background:#e5e7eb;
+}
+
+
+  button, .btn {
+    background: #4f46e5 !important; /* indigo */
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+  }
+
+  :root{
+  --sidebar-w:230px;
+  --sidebar-bg:#ffffff;   /* sidebar white */
+  --content-bg:#f3f4f6;   /* unified light gray background */
+}
+
+  *{box-sizing:border-box;margin:0;padding:0;font-family:Arial, sans-serif;}
+
+  /* HAMBURGER BUTTON */
+  .menu-btn{
+    position:fixed;
+    left:14px;
+    top:14px;
+    z-index:40;
+    background:none;
+    border:none;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    padding:8px;
+  }
+  .menu-btn span{
+    width:26px;
+    height:3px;
+    background:#000;
+    border-radius:2px;
+  }
+
+  /* SIDEBAR */
+  .sidebar{
+    position:fixed;
+    left:0;top:0;bottom:0;
+    width:var(--sidebar-w);
+    background:var(--sidebar-bg);
+    color:#fff;
+    padding:20px;
+    transform:translateX(-100%);
+    transition:transform .28s ease;
+    z-index:50;
+    overflow:auto;
+  }
+  .sidebar.open{
+    transform:translateX(0);
+  }
+  .sidebar .title{ font-size:20px; font-weight:700; padding-left:40px; margin-bottom:12px; }
+
+  .menu-item{
+    padding:15px; margin:10px 0; background:#e0e0e0; border-radius:12px; cursor:pointer; transition:0.3s; font-weight:bold;
+  }
+  .menu-item:hover{ background:#007BFF; color:white; transform:scale(1.05); }
+
+  /* OVERLAY */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.35);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+    z-index:45;
+  }
+  .overlay.visible{
+    opacity:1;
+    pointer-events:auto;
+  }
+
+  /* CONTENT */
+  .content{
+    margin-left:0;
+    padding:36px;
+    min-height:100vh;
+    background:#f3f4f6 !important;
+    transition:margin-left .28s ease;
+  }
+  @media(min-width:800px){
+    .content.shifted{ margin-left: var(--sidebar-w); }
+  }
+  h1{text-align:center;margin-bottom:8px;}
+</style>
+</head>
+<body>
+
+<!-- NEW CLICKABLE HAMBURGER -->
+<button class="menu-btn" id="menuBtn" aria-label="open menu">
+  <span></span>
+  <span></span>
+  <span></span>
+</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar" aria-hidden="true">
+  <div class="title">Doctor Panel</div>
+  <div class="menu-item" onclick="openPage('appointments')">Appointments</div>
+  <div class="menu-item" onclick="openPage('patients')">Patients List</div>
+  <div class="menu-item" onclick="openPage('history')">Medical History</div>
+  <div class="menu-item" onclick="openPage('pres')">Prescriptions</div>
+  <div class="menu-item" onclick="openPage('upload')">Upload Reports</div>
+  <div class="menu-item" onclick="openPage('schedule')">My Schedule</div>
+  <div class="menu-item" onclick="openPage('profile')">Profile</div>
+  <div class="menu-item" onclick="openPage('noti')">Notifications</div>
+  <div class="menu-item" onclick="openPage('chat')">Messages / Chat</div>
+  <div class="menu-item" onclick="openPage('logout')">Logout</div>
+</aside>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay"></div>
+
+<!-- MAIN CONTENT -->
+<main class="content" id="mainContent">
+  <h1>Welcome TO Doctor's Dashboard</h1>
+
+  <!-- IMAGE HERE -->
+  <div style="text-align:center; margin-top:20px;">
+    <img src="doctor.jpg" alt="Doctor Image" width="900" style="border-radius:40px;">
+  </div>
+
+  <p style="text-align:center; margin-top:10px;">Click the three lines to open the sidebar.</p>
+</main>
+
+
+<script>
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const mainContent = document.getElementById('mainContent');
+
+  function openSidebar(){
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    mainContent.classList.add('shifted');
+  }
+  function closeSidebar(){
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+    mainContent.classList.remove('shifted');
+  }
+  function toggleSidebar(){
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  }
+
+  menuBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    toggleSidebar();
+  });
+
+  overlay.addEventListener('click', closeSidebar);
+
+  document.addEventListener('click', function(e){
+    if(sidebar.classList.contains('open')){
+      const inside = sidebar.contains(e.target);
+      const btn = menuBtn.contains(e.target);
+      if(!inside && !btn){
+        closeSidebar();
+      }
+    }
+  });
+
+  sidebar.addEventListener('click', e => e.stopPropagation());
+
+function openPage(page) {
+  alert(`${page} page opened`);
+  if (page === 'appointments') {
+    const appointments = JSON.parse(localStorage.getItem("appointments") || "[]");
+    let todayAppointments = appointments.filter(a => a.date === new Date().toISOString().split('T')[0] && a.status === 'approved');
+    let upcomingAppointments = appointments.filter(a => a.date > new Date().toISOString().split('T')[0] && a.status === 'approved');
+
+    let todayHtml = todayAppointments.map(a => `
+      <tr>
+        <td style="padding:10px; border:1px solid #ddd;">${a.patient}</td>
+        <td style="padding:10px; border:1px solid #ddd;">10:00 AM</td>
+        <td style="padding:10px; border:1px solid #ddd;">${a.department}</td>
+        <td style="padding:10px; border:1px solid #ddd;"><button onclick="viewPatient('${a.patient}')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:5px;">View</button></td>
+      </tr>
+    `).join('');
+
+    let upcomingHtml = upcomingAppointments.map(a => `
+      <li style="padding:10px; background:white; margin:5px 0; border-radius:5px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">${a.patient} – ${a.date} (${a.department})</li>
+    `).join('');
+
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">Appointments</h1>
+      <div style="margin-top:20px; display:flex; flex-direction:column; gap:20px;">
+
+        <div style="background:#f9f9f9; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color:#007BFF;">Today's Appointments</h3>
+          <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+            <thead>
+              <tr style="background:#007BFF; color:white;">
+                <th style="padding:10px; border:1px solid #ddd;">Patient</th>
+                <th style="padding:10px; border:1px solid #ddd;">Time</th>
+                <th style="padding:10px; border:1px solid #ddd;">Reason</th>
+                <th style="padding:10px; border:1px solid #ddd;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${todayHtml || '<tr><td colspan="4" style="padding:10px; text-align:center;">No appointments today</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="background:#f9f9f9; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+          <h3 style="color:#007BFF;">Upcoming Appointments</h3>
+          <ul style="list-style:none; padding:0;">
+            ${upcomingHtml || '<li style="padding:10px; background:white; margin:5px 0; border-radius:5px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">No upcoming appointments</li>'}
+          </ul>
+        </div>
+
+      </div>
+    `;
+  }
+
+  else if (page === 'patients') {
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">Patients List</h1>
+      <div style="margin-top:20px; display:flex; flex-direction:column; gap:20px;">
+        <div style="background:#f9f9f9; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="background:#007BFF; color:white;">
+                <th style="padding:10px; border:1px solid #ddd;">Name</th>
+                <th style="padding:10px; border:1px solid #ddd;">Age</th>
+                <th style="padding:10px; border:1px solid #ddd;">Last Visit</th>
+                <th style="padding:10px; border:1px solid #ddd;">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;">Anil Kumar</td>
+                <td style="padding:10px; border:1px solid #ddd;">32</td>
+                <td style="padding:10px; border:1px solid #ddd;">12-Nov-2024</td>
+                <td style="padding:10px; border:1px solid #ddd;"><button onclick="viewHistory('Anil Kumar')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:5px;">History</button></td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;">Priya Singh</td>
+                <td style="padding:10px; border:1px solid #ddd;">27</td>
+                <td style="padding:10px; border:1px solid #ddd;">20-Oct-2024</td>
+                <td style="padding:10px; border:1px solid #ddd;"><button onclick="viewHistory('Priya Singh')" style="background:#28a745; color:white; border:none; padding:5px 10px; border-radius:5px;">History</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  else if (page === 'history') {
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">Medical History</h1>
+      <div style="margin-top:20px; display:flex; flex-direction:column; gap:20px;">
+        <div style="background:#f9f9f9; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+          <p style="margin-bottom:20px; color:#555;">Select a patient from the Patients List to view full history.</p>
+          <ul style="list-style:none; padding:0;">
+            <li style="padding:10px; background:white; margin:5px 0; border-radius:5px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">✔ Fever – 2024</li>
+            <li style="padding:10px; background:white; margin:5px 0; border-radius:5px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">✔ Diabetes Check – 2023</li>
+            <li style="padding:10px; background:white; margin:5px 0; border-radius:5px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">✔ Blood Pressure Review – 2022</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  }
+
+  else if (page === 'pres') {
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">Create Prescription</h1>
+      <div style="margin-top:20px; max-width:500px; margin:auto; background:#f9f9f9; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+
+        <label style="display:block; margin-bottom:5px; color:#555;">Patient Name</label>
+        <input type="text" id="presPatient" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+
+        <label style="display:block; margin-bottom:5px; color:#555;">Medicine</label>
+        <input type="text" id="presMed" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+
+        <label style="display:block; margin-bottom:5px; color:#555;">Dosage</label>
+        <input type="text" id="presDose" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+
+        <label style="display:block; margin-bottom:5px; color:#555;">Instructions</label>
+        <textarea id="presInstr" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;"></textarea>
+
+        <button onclick="savePrescription()"
+          style="padding:10px 18px; background:#007BFF; color:white; border:none; border-radius:8px; width:100%;">
+          Save Prescription
+        </button>
+
+      </div>
+    `;
+  }
+
+  else if (page === 'upload') {
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">Upload Reports</h1>
+      <div style="border:2px dashed #007BFF; padding:28px; width:70%; margin:20px auto; text-align:center; background:#f9f9f9; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+        <input type="file" style="margin-bottom:10px;" />
+        <p style="color:#555;">Drag and drop files here or click to select</p>
+      </div>
+    `;
+  }
+
+  else if (page === 'schedule') {
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">My Schedule</h1>
+      <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+        <div style="background:#f9f9f9; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">✔ Monday — 10 AM to 4 PM</div>
+        <div style="background:#f9f9f9; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">✔ Wednesday — 11 AM to 3 PM</div>
+        <div style="background:#f9f9f9; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">✔ Friday — 2 PM to 6 PM</div>
+      </div>
+    `;
+  }
+
+  else if (page === 'profile') {
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">Doctor Profile</h1>
+      <div style="margin-top:20px; background:#f9f9f9; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); max-width:400px; margin:auto;">
+        <p style="margin-bottom:10px;"><strong>Name:</strong> Dr. John Doe</p>
+        <p style="margin-bottom:10px;"><strong>Specialization:</strong> Cardiologist</p>
+        <p style="margin-bottom:20px;"><strong>Experience:</strong> 12 years</p>
+        <button style="padding:10px 20px; border-radius:8px; background:#007BFF; color:white; border:none; width:100%;">
+          Edit Profile
+        </button>
+      </div>
+    `;
+  }
+
+  else if (page === 'chat') {
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">Messages / Chat</h1>
+      <div style="margin-top:20px; background:#f9f9f9; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+        <p style="color:#555;">No new messages.</p>
+      </div>
+    `;
+  }
+
+  else if (page === 'noti') {
+    mainContent.innerHTML = `
+      <h1 style="color:#333; text-align:center;">Notifications</h1>
+      <div style="margin-top:20px; display:flex; flex-direction:column; gap:10px;">
+        <div style="background:#f9f9f9; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">🔔 New appointment scheduled for tomorrow.</div>
+        <div style="background:#f9f9f9; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">🔔 Patient uploaded new report.</div>
+      </div>
+    `;
+  }
+
+  else if (page === 'logout') {
+  mainContent.innerHTML = `
+    <h1 style="color:#333; text-align:center;">Logging Out...</h1>
+    <div style="margin-top:20px; background:#f9f9f9; padding:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); text-align:center;">
+      <p style="color:#555;">You will be redirected to login page.</p>
+    </div>
+  `;
+  setTimeout(() => location.href = 'login.html', 800);
+}
+
+
+  closeSidebar();
+}
+
+</script>
+
+</body>
+</html>

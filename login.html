@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MedCare Login & Registration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+  body {
+    background: #f3f4f6 !important; /* light gray */
+    font-family: 'Inter', sans-serif;
+  }
+
+  header {
+    background: #1f2937 !important; /* dark header */
+    color: white !important;
+  }
+
+  .sidebar {
+    background: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+  }
+
+  .menu-item {
+    background: #ffffff !important;
+    border-radius: 10px;
+    padding: 12px;
+    transition: 0.25s;
+  }
+  .menu-item:hover {
+    background: #e5e7eb !important; /* gray hover */
+  }
+
+  button, .btn {
+    background: #4f46e5 !important; /* indigo */
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+  }
+</style>
+
+</head>
+
+<body class="bg-gray-50 flex items-center justify-center min-h-screen">
+
+<div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md">
+
+  <!-- ICON -->
+  <div class="flex justify-center mb-6">
+    <div class="w-20 h-20 bg-blue-600 text-white rounded-full flex items-center justify-center text-4xl">
+      ❤️
+    </div>
+  </div>
+
+  <h1 class="text-center text-2xl font-semibold mb-6">MedCare Online</h1>
+
+  <!-- TAB BUTTONS -->
+  <div class="flex justify-center mb-6">
+    <button id="loginTab" onclick="showTab('login')"
+      class="px-6 py-2 text-white bg-blue-600 rounded-l-lg">
+      Login
+    </button>
+    <button id="registerTab" onclick="showTab('register')"
+      class="px-6 py-2 bg-gray-200 text-gray-700 rounded-r-lg">
+      Register
+    </button>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div id="loginForm">
+
+    <label class="font-medium">Email</label>
+    <input id="email" type="email" placeholder="Enter your email"
+      class="w-full border p-3 rounded-xl mt-1 mb-3"/>
+
+    <label class="font-medium">Password</label>
+    <input id="password" type="password" placeholder="Enter your password"
+      class="w-full border p-3 rounded-xl mt-1 mb-6"/>
+
+    <!-- ROLE SELECTION -->
+    <label class="font-medium">Login As</label>
+    <div class="grid grid-cols-2 gap-3 mt-2 mb-6">
+      <button onclick="selectRole('patient')" id="patientBtn"
+        class="p-3 border rounded-xl">Patient</button>
+
+      <button onclick="selectRole('doctor')" id="doctorBtn"
+        class="p-3 border rounded-xl">Doctor</button>
+
+      <button onclick="selectRole('pharmacist')" id="pharmaBtn"
+        class="p-3 border rounded-xl">Pharmacist</button>
+
+      <button onclick="selectRole('admin')" id="adminBtn"
+        class="p-3 border rounded-xl">Admin</button>
+    </div>
+
+    <p id="loginError" class="text-red-600 text-center mb-4 hidden"></p>
+
+    <button onclick="loginUser()"
+      class="w-full bg-blue-600 text-white p-3 rounded-xl text-lg font-medium">
+      ➜ Sign In
+    </button>
+  </div>
+
+
+  <!-- REGISTRATION FORM -->
+  <div id="registerForm" class="hidden">
+
+    <label class="font-medium">Full Name</label>
+    <input id="regName" type="text" placeholder="Enter full name"
+      class="w-full border p-3 rounded-xl mt-1 mb-3"/>
+
+    <label class="font-medium">Email</label>
+    <input id="regEmail" type="email" placeholder="Enter email"
+      class="w-full border p-3 rounded-xl mt-1 mb-3"/>
+
+    <label class="font-medium">Password</label>
+    <input id="regPassword" type="password" placeholder="Create password"
+      class="w-full border p-3 rounded-xl mt-1 mb-3"/>
+
+    <label class="font-medium">Select Role</label>
+    <select id="regRole" onchange="showExtraFields()"
+      class="w-full border p-3 rounded-xl mt-1 mb-6">
+      <option value="patient">Patient</option>
+      <option value="doctor">Doctor</option>
+      <option value="pharmacist">Pharmacist</option>
+      <option value="admin">Admin</option>
+    </select>
+
+    <!-- EXTRA FIELDS FOR DOCTOR -->
+    <div id="doctorFields" class="hidden">
+      <label class="font-medium">Specialization</label>
+      <input id="docSpec" type="text" placeholder="e.g., Cardiologist"
+        class="w-full border p-3 rounded-xl mt-1 mb-3"/>
+
+      <label class="font-medium">License Number</label>
+      <input id="docLicense" type="text" placeholder="Enter license number"
+        class="w-full border p-3 rounded-xl mt-1 mb-3"/>
+
+      <label class="font-medium">Experience (years)</label>
+      <input id="docExp" type="number" placeholder="Years of experience"
+        class="w-full border p-3 rounded-xl mt-1 mb-3"/>
+
+      <!-- ADDING HOSPITAL SELECTION -->
+      <label class="font-medium">Select Hospital</label>
+      <select id="docHospital" class="w-full border p-3 rounded-xl mt-1 mb-6">
+        <option value="">-- Select Hospital --</option>
+        <option>Apollo Hospital</option>
+        <option>City Care Hospital</option>
+        <option>Global Health Clinic</option>
+        <option>Aster Medical Center</option>
+        <option>Rainbow Hospital</option>
+      </select>
+    </div>
+
+    <!-- EXTRA FIELDS FOR ADMIN -->
+    <div id="adminFields" class="hidden">
+      <label class="font-medium">Admin Code</label>
+      <input id="adminCode" type="text" placeholder="Enter admin code"
+        class="w-full border p-3 rounded-xl mt-1 mb-3"/>
+
+      <label class="font-medium">Department</label>
+      <input id="adminDept" type="text" placeholder="e.g., Management"
+        class="w-full border p-3 rounded-xl mt-1 mb-6"/>
+    </div>
+
+    <p id="registerError" class="text-red-600 text-center mb-2 hidden"></p>
+    <p id="registerSuccess" class="text-green-600 text-center mb-2 hidden"></p>
+
+    <button onclick="registerUser()"
+      class="w-full bg-green-600 text-white p-3 rounded-xl text-lg font-medium">
+      ➜ Register
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+/* helper */
+const $ = id => document.getElementById(id);
+
+/* elements we use */
+const loginForm = $('loginForm');
+const registerForm = $('registerForm');
+const loginTab = $('loginTab');
+const registerTab = $('registerTab');
+
+const doctorFields = $('doctorFields');
+const adminFields = $('adminFields');
+
+const loginError = $('loginError');
+const registerError = $('registerError');
+const registerSuccess = $('registerSuccess');
+
+let selectedRole = "patient";
+
+/* initialize UI */
+function init() {
+  // default role highlight
+  selectRole('patient');
+  // ensure extra fields are correct on load
+  showExtraFields();
+  // start on login tab
+  showTab('login');
+}
+init();
+
+/* TAB SWITCH */
+function showTab(tab) {
+  loginForm.classList.toggle('hidden', tab !== 'login');
+  registerForm.classList.toggle('hidden', tab !== 'register');
+
+  if (tab === 'login') {
+    loginTab.className = "px-6 py-2 text-white bg-blue-600 rounded-l-lg";
+    registerTab.className = "px-6 py-2 bg-gray-200 text-gray-700 rounded-r-lg";
+  } else {
+    loginTab.className = "px-6 py-2 bg-gray-200 text-gray-700 rounded-l-lg";
+    registerTab.className = "px-6 py-2 text-white bg-blue-600 rounded-r-lg";
+  }
+
+  // clear messages when switching
+  loginError.classList.add('hidden');
+  registerError.classList.add('hidden');
+  registerSuccess.classList.add('hidden');
+}
+
+/* SHOW EXTRA FIELDS */
+function showExtraFields() {
+  const role = $('regRole').value;
+  doctorFields.classList.toggle('hidden', role !== 'doctor');
+  adminFields.classList.toggle('hidden', role !== 'admin');
+  // clear any register messages
+  registerError.classList.add('hidden');
+  registerSuccess.classList.add('hidden');
+}
+
+/* SELECT ROLE (LOGIN) */
+function selectRole(role) {
+  selectedRole = role;
+
+  // update button styles
+  const buttons = ['patient','doctor','pharmacist','admin'];
+  buttons.forEach(b => {
+    const el = $(b + 'Btn');
+    if(!el) return;
+    el.className = "p-3 border rounded-xl hover:bg-gray-100";
+  });
+
+  const active = $(role + 'Btn');
+  if(active) active.className = "p-3 border rounded-xl bg-blue-50 text-blue-700 font-medium";
+
+  // hide login error when switching
+  loginError.classList.add('hidden');
+}
+
+/* REGISTER */
+function registerUser() {
+  const name = $('regName').value.trim();
+  const email = $('regEmail').value.trim().toLowerCase();
+  const password = $('regPassword').value;
+  const role = $('regRole').value;
+
+  registerError.classList.add('hidden');
+  registerSuccess.classList.add('hidden');
+
+  if (!name || !email || !password) {
+    registerError.innerText = "All fields are required.";
+    registerError.classList.remove('hidden');
+    return;
+  }
+
+  // optional: check email format very basic
+  if (!email.includes('@')) {
+    registerError.innerText = "Enter a valid email.";
+    registerError.classList.remove('hidden');
+    return;
+  }
+
+  let extra = {};
+
+  if (role === "doctor") {
+    extra = {
+      specialization: $('docSpec').value.trim(),
+      license: $('docLicense').value.trim(),
+      experience: $('docExp').value.trim(),
+      hospital: $('docHospital').value
+    };
+  }
+
+  if (role === "admin") {
+    extra = {
+      adminCode: $('adminCode').value.trim(),
+      department: $('adminDept').value.trim()
+    };
+  }
+
+  const user = { name, email, password, role, extra };
+  localStorage.setItem("user_" + email, JSON.stringify(user));
+
+  registerSuccess.innerText = "Registration successful! Please login.";
+  registerSuccess.classList.remove('hidden');
+
+  // after short delay, switch to login
+  setTimeout(() => {
+    showTab('login');
+    // prefill email in login
+    $('email').value = email;
+  }, 900);
+}
+
+/* LOGIN */
+function loginUser() {
+  loginError.classList.add('hidden');
+
+  const emailVal = $('email').value.trim().toLowerCase();
+  const passwordVal = $('password').value;
+
+  if (!emailVal || !passwordVal) {
+    loginError.innerText = "Enter email and password.";
+    loginError.classList.remove('hidden');
+    return;
+  }
+
+  const data = localStorage.getItem("user_" + emailVal);
+
+  if (!data) {
+    loginError.innerText = "User not found! Please register first.";
+    loginError.classList.remove('hidden');
+    return;
+  }
+
+  const user = JSON.parse(data);
+
+  if (user.password !== passwordVal) {
+    loginError.innerText = "Incorrect password!";
+    loginError.classList.remove('hidden');
+    return;
+  }
+
+  if (user.role !== selectedRole) {
+    loginError.innerText = `This account belongs to "${user.role}". Select the correct role to login.`;
+    loginError.classList.remove('hidden');
+    return;
+  }
+
+  // Redirect (demo)
+  if (user.role === "patient") location.href = "patient.html";
+  else if (user.role === "doctor") location.href = "doctor.html";
+  else if (user.role === "pharmacist") location.href = "pharmacist.html";
+  else if (user.role === "admin") location.href = "admin.html";
+}
+</script>
+
+</body>
+</html>

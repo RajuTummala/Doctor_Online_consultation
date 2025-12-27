@@ -1,0 +1,463 @@
+<!doctype html> 
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Patient Dashboard</title>
+  <href rel="http://127.0.0.1:5500/patient.html"></href>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+  body {
+    background: #f3f4f6 !important; /* light gray */
+    font-family: 'Inter', sans-serif;
+  }
+
+  header {
+    background: #1f2937 !important; /* dark header */
+    color: white !important;
+  }
+
+  .sidebar {
+    background: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+  }
+
+
+  button, .btn {
+    background: #4f46e5 !important; /* indigo */
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+  }
+
+    @keyframes fadeInUp {
+      from { opacity:0; transform:translateY(40px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    #menuBox {
+      transition: all 0.35s ease-in-out;
+      transform: translateX(-20px);
+      opacity: 0;
+    }
+    #menuBox.show {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #111;
+      border-radius: 12px;
+      transition: 0.3s;
+    }
+    .menu-item:hover {
+      background: #222;
+    }
+
+    .card {
+      padding: 32px;
+      background: white;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+      transition: 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+    }
+
+    .lang-btn {
+      padding: 10px 18px;
+      color: white;
+      border-radius: 10px;
+      font-weight: bold;
+      box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-sky-600 to-indigo-700 text-white shadow-xl">
+  <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+    <button id="menuButton"
+            onclick="toggleMenu()"
+            class="text-white text-4xl font-bold transform hover:scale-110 transition">☰</button>
+    <h1 class="text-2xl font-semibold tracking-wider drop-shadow">Patient Dashboard</h1>
+  </div>
+
+  <!-- BLACK MENU -->
+  <div id="menuBox"
+       class="hidden absolute left-6 top-24 bg-black text-white shadow-2xl border border-gray-700 rounded-2xl w-80 z-50 p-5">
+
+    <h3 class="text-xl font-bold mb-4 text-white">Menu</h3>
+
+    <div class="space-y-2">
+
+  <a onclick="openPatientPage('consult')" class="menu-item">🧑‍⚕️ Patient Consultation</a>
+  <a onclick="openPatientPage('appointments')" class="menu-item">📅 Book Appointment</a>
+  <a onclick="openPatientPage('doctors')" class="menu-item">👨‍⚕️ My Doctors</a>
+  <a onclick="openPatientPage('reports')" class="menu-item">📄 My Reports</a>
+  <a onclick="openPatientPage('history')" class="menu-item">📝 Medical History</a>
+  <a onclick="openPatientPage('prescriptions')" class="menu-item">💊 My Prescriptions</a>
+  <a onclick="openPatientPage('lab')" class="menu-item">🧪 Lab Tests</a>
+  <a onclick="openPatientPage('records')" class="menu-item">📁 Health Records (EMR/EHR)</a>
+  <a onclick="openPatientPage('payments')" class="menu-item">💰 Payments & Billing</a>
+  <a onclick="openPatientPage('profile')" class="menu-item">👤 Profile</a>
+
+  <div class="border-t border-gray-600 my-4"></div>
+
+  <a onclick="logoutPatient()" class="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-900/40 transition rounded-xl font-semibold">
+    🚪 Logout
+  </a>
+
+</div>
+
+
+
+    </div>
+  </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="relative max-w-7xl mx-auto px-6 py-10">
+
+  <div class="absolute inset-0 bg-cover bg-center bg-no-repeat rounded-2xl shadow-xl"
+       style="background-image: url('https://cdn.dribbble.com/userupload/37200264/file/original-7b295a73c30612e6e6e7b2859e1fbcf0.jpg?resize=752x&vertical=center'); filter:brightness(70%);"></div>
+
+  <div class="absolute inset-0 bg-white/40 backdrop-blur-lg rounded-2xl"></div>
+
+  <div class="relative z-10">
+
+    <h2 id="welcomeTitle" class="text-4xl font-extrabold text-center text-gray-900 mb-6 drop-shadow-lg">
+      Welcome to Your Dashboard
+    </h2>
+
+    <p id="welcomeDesc" class="text-gray-700 text-center mb-10 text-lg">
+      Click the ☰ button above to open the full menu.
+    </p>
+
+    <!-- CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      <div class="card">
+        <h3 id="doctorsTitle" class="text-2xl font-bold mb-3">👨‍⚕️ Our Doctors</h3>
+        <p id="doctorsDesc" class="text-gray-700">
+          Highly qualified Physicians, Cardiologists, Pediatricians & more.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 id="purposeTitle" class="text-2xl font-bold mb-3">📌 Purpose</h3>
+        <p id="purposeDesc" class="text-gray-700">
+          Easily book appointments, view reports & track medical history.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 class="text-2xl font-bold mb-4">🌐 Language</h3>
+
+        <div class="flex flex-wrap gap-4">
+          <button onclick="setLanguage('english')" class="lang-btn bg-indigo-600">English</button>
+          <button onclick="setLanguage('telugu')" class="lang-btn bg-green-600">తెలుగు</button>
+          <button onclick="setLanguage('hindi')" class="lang-btn bg-orange-600">हिंदी</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER MESSAGE -->
+    <p id="footerMsg" class="text-center text-gray-900 font-semibold mt-10 text-lg">
+      Your health, our priority — providing care effortlessly.
+    </p>
+
+    <!-- INSTRUCTIONS SECTION -->
+    <div class="mt-16 p-8 bg-white rounded-2xl shadow-xl">
+      <h2 class="text-3xl font-bold text-gray-900 mb-4">🩺 Patient Instructions & Recovery Tips</h2>
+
+      <ul id="instructionList" class="space-y-4 text-gray-700 text-lg">
+        <li>✔ Take your prescribed medicines on time every day.</li>
+        <li>✔ Drink at least 3–4 liters of water daily.</li>
+        <li>✔ Sleep 7–8 hours for better healing.</li>
+        <li>✔ Eat healthy meals and avoid junk food.</li>
+        <li>✔ Do light exercise to improve circulation.</li>
+        <li>✔ Never skip follow-up appointments.</li>
+        <li>✔ If symptoms worsen, contact your doctor immediately.</li>
+      </ul>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- SCRIPT -->
+<script>
+function toggleMenu() {
+  const menu = document.getElementById("menuBox");
+  menu.classList.toggle("hidden");
+  menu.classList.toggle("show");
+}
+
+// CLOSE MENU WHEN CLICK OUTSIDE
+window.addEventListener("click", function(event) {
+  const menu = document.getElementById("menuBox");
+  const button = document.getElementById("menuButton");
+
+  if (!menu.contains(event.target) && event.target !== button) {
+    menu.classList.add("hidden");
+    menu.classList.remove("show");
+  }
+});
+
+function setLanguage(lang) {
+  const t = id => document.getElementById(id);
+
+  if (lang === "english") {
+    t("welcomeTitle").innerText = "Welcome to Your Dashboard";
+    t("welcomeDesc").innerText = "Click the ☰ button above to open the full menu.";
+    t("doctorsTitle").innerText = "👨‍⚕️ Our Doctors";
+    t("doctorsDesc").innerText = "Highly qualified Physicians, Cardiologists, Pediatricians & more.";
+    t("purposeTitle").innerText = "📌 Purpose of This Dashboard";
+    t("purposeDesc").innerText = "Book appointments, view reports, prescriptions, lab tests and medical history.";
+    t("footerMsg").innerText = "Your health, our priority — providing care effortlessly.";
+
+    t("instructionList").innerHTML = `
+      <li>✔ Take your prescribed medicines on time every day.</li>
+      <li>✔ Drink at least 3–4 liters of water daily.</li>
+      <li>✔ Sleep 7–8 hours for better healing.</li>
+      <li>✔ Eat healthy meals and avoid junk food.</li>
+      <li>✔ Do light exercise to improve circulation.</li>
+      <li>✔ Never skip follow-up appointments.</li>
+      <li>✔ If symptoms worsen, contact your doctor immediately.</li>
+    `;
+  }
+
+  if (lang === "telugu") {
+    t("welcomeTitle").innerText = "మీ డ్యాష్‌బోర్డుకు స్వాగతం";
+    t("welcomeDesc").innerText = "పూర్తి మెను తెరవడానికి ☰ బటన్‌ను నొక్కండి.";
+    t("doctorsTitle").innerText = "👨‍⚕️ మా వైద్యులు";
+    t("doctorsDesc").innerText = "అత్యుత్తమ నిపుణులు — వైద్యులు, హృద్రోగ నిపుణులు, పిల్లల వైద్యులు.";
+    t("purposeTitle").innerText = "📌 ఈ డ్యాష్‌బోర్డ్ యొక్క ప్రయోజనం";
+    t("purposeDesc").innerText = "అపాయింట్‌మెంట్లు, రిపోర్టులు, మందులు, ల్యాబ్ టెస్టులు — అన్నీ ఒకే చోట.";
+    t("footerMsg").innerText = "మీ ఆరోగ్యం మా బాధ్యత — ఉత్తమ సేవ అందిస్తున్నాం.";
+
+    t("instructionList").innerHTML = `
+      <li>✔ మీ మందులు ప్రతిరోజూ సమయానికి తీసుకోండి.</li>
+      <li>✔ రోజుకు కనీసం 3–4 లీటర్ల నీరు తాగండి.</li>
+      <li>✔ మెరుగైన ఆరోగ్యానికి 7–8 గంటలు నిద్రపోండి.</li>
+      <li>✔ ఆరోగ్యకరమైన ఆహారం తీసుకోండి, జంక్ ఫుడ్‌ను నివారించండి.</li>
+      <li>✔ రక్తప్రసరణకు తేలికపాటి వ్యాయామం చేయండి.</li>
+      <li>✔ ఫాలో-అప్ అపాయింట్‌మెంట్లు ఎప్పుడూ మిస్ అవ్వకండి.</li>
+      <li>✔ లక్షణాలు పెరిగితే వెంటనే వైద్యుడిని సంప్రదించండి.</li>
+    `;
+  }
+
+  if (lang === "hindi") {
+    t("welcomeTitle").innerText = "आपके डैशबोर्ड में स्वागत है";
+    t("welcomeDesc").innerText = "पूरा मेनू खोलने के लिए ऊपर ☰ बटन दबाएँ।";
+    t("doctorsTitle").innerText = "👨‍⚕️ हमारे डॉक्टर";
+    t("doctorsDesc").innerText = "उच्च योग्य चिकित्सक, हृदय विशेषज्ञ, बाल रोग विशेषज्ञ।";
+    t("purposeTitle").innerText = "📌 इस डैशबोर्ड का उद्देश्य";
+    t("purposeDesc").innerText = "अपॉइंटमेंट, रिपोर्ट, दवाइयाँ और मेडिकल हिस्ट्री — सब एक ही जगह।";
+    t("footerMsg").innerText = "आपका स्वास्थ्य, हमारी जिम्मेदारी — बेहतर देखभाल के लिए समर्पित।";
+
+    t("instructionList").innerHTML = `
+      <li>✔ अपनी दवाइयाँ रोज़ समय पर लें।</li>
+      <li>✔ रोज़ कम से कम 3–4 लीटर पानी पिएँ।</li>
+      <li>✔ बेहतर स्वास्थ्य के लिए 7–8 घंटे की नींद लें।</li>
+      <li>✔ स्वस्थ भोजन करें और जंक फूड से दूर रहें।</li>
+      <li>✔ हल्का व्यायाम करें जिससे रक्त संचार अच्छा रहे।</li>
+      <li>✔ फ़ॉलो-अप अपॉइंटमेंट कभी मिस न करें।</li>
+      <li>✔ यदि लक्षण बढ़ें तो तुरंत डॉक्टर से संपर्क करें।</li>
+    `;
+  }
+}
+function openPatientPage(page) {
+  const t = id => document.getElementById(id);
+
+  let html = "";
+
+  // PATIENT CONSULTATION
+  if (page === "consult") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">🧑‍⚕️ Patient Consultation</h2>
+      <p>You can chat or request a call from a doctor.</p>
+      <button onclick="startConsultation()" class="bg-blue-600 text-white px-4 py-2 rounded-lg mt-4">Start Consultation</button>
+    `;
+  }
+
+  // BOOK APPOINTMENT
+  else if (page === "appointments") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">📅 Book an Appointment</h2>
+      <label>Select Department</label>
+      <select class="w-full border p-3 rounded-xl mt-2 mb-4">
+        <option>Cardiology</option>
+        <option>General Medicine</option>
+        <option>Orthopaedics</option>
+        <option>Dermatology</option>
+      </select>
+
+      <label>Select Date</label>
+      <input type="date" class="w-full border p-3 rounded-xl mt-2 mb-4">
+
+      <button onclick="confirmAppointment()" class="bg-green-600 text-white px-4 py-2 rounded-lg">Confirm Appointment</button>
+    `;
+  }
+
+  // DOCTORS LIST
+  else if (page === "doctors") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">👨‍⚕️ My Doctors</h2>
+      <ul class="space-y-3">
+        <li class="p-4 bg-white shadow rounded-lg">Dr. Ramesh — Cardiologist</li>
+        <li class="p-4 bg-white shadow rounded-lg">Dr. Meera — Dermatologist</li>
+        <li class="p-4 bg-white shadow rounded-lg">Dr. Kiran — Orthopaedic</li>
+      </ul>
+    `;
+  }
+
+  // REPORTS
+  else if (page === "reports") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">📄 My Reports</h2>
+      <input type="file" class="mt-4">
+      <p class="mt-4">Uploaded Reports:</p>
+      <ul class="mt-2">
+        <li>✔ Blood Test — 2024</li>
+        <li>✔ X-Ray — 2023</li>
+      </ul>
+    `;
+  }
+
+  // MEDICAL HISTORY
+  else if (page === "history") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">📝 Medical History</h2>
+      <ul class="space-y-2">
+        <li>✔ Fever Treatment — 2024</li>
+        <li>✔ Blood Pressure Check — 2023</li>
+        <li>✔ Diabetes Evaluation — 2022</li>
+      </ul>
+    `;
+  }
+
+  // PRESCRIPTIONS
+  else if (page === "prescriptions") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">💊 My Prescriptions</h2>
+      <ul>
+        <li>✔ Paracetamol — 500mg</li>
+        <li>✔ Ibuprofen — 250mg</li>
+      </ul>
+    `;
+  }
+
+  // LAB TESTS
+  else if (page === "lab") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">🧪 Lab Tests</h2>
+      <button onclick="bookLabTest()" class="bg-blue-600 text-white px-4 py-2 rounded-lg">Book Lab Test</button>
+    `;
+  }
+
+  // HEALTH RECORDS
+  else if (page === "records") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">📁 Health Records (EMR/EHR)</h2>
+      <p>Your complete digital medical record.</p>
+      <ul class="mt-4">
+        <li>✔ Allergies</li>
+        <li>✔ Medications</li>
+        <li>✔ Diagnoses</li>
+        <li>✔ Past Treatments</li>
+      </ul>
+    `;
+  }
+
+  // PAYMENTS
+  else if (page === "payments") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">💰 Payments & Billing</h2>
+      <p>Previous Bills:</p>
+      <ul class="mt-2">
+        <li>✔ ₹500 — Consultation (2024)</li>
+        <li>✔ ₹1200 — Lab Test (2023)</li>
+      </ul>
+      <button onclick="payNow()" class="bg-green-600 text-white px-4 py-2 rounded-lg mt-4">Pay Now</button>
+    `;
+  }
+
+  // PROFILE
+  else if (page === "profile") {
+    html = `
+      <h2 class="text-3xl font-bold mb-4">👤 Profile</h2>
+      <p><b>Name:</b> John Doe</p>
+      <p><b>Age:</b> 29</p>
+      <p><b>Blood Group:</b> O+</p>
+      <button onclick="editProfile()" class="bg-gray-800 text-white px-4 py-2 rounded-lg mt-4">Edit Profile</button>
+    `;
+  }
+
+  // INSERT CONTENT INTO MAIN SECTION
+  document.querySelector("main").innerHTML = `
+    <div class="p-8 bg-white rounded-2xl shadow-xl mt-6">
+      ${html}
+    </div>
+  `;
+}
+
+function startConsultation() {
+  alert("Consultation started! Please wait for a doctor to connect.");
+}
+
+function confirmAppointment() {
+  alert("Appointment confirmed! You will receive a confirmation email.");
+}
+
+function bookLabTest() {
+  alert("Lab test booked! Visit the lab at your scheduled time.");
+}
+
+function payNow() {
+  alert("Payment processed successfully!");
+}
+
+function confirmAppointment() {
+  const dept = document.querySelector('select').value;
+  const date = document.querySelector('input[type="date"]').value;
+  if (!dept || !date) {
+    alert("Please select department and date.");
+    return;
+  }
+  const appointments = JSON.parse(localStorage.getItem("appointments") || "[]");
+  appointments.push({ department: dept, date: date, status: "pending", patient: "John Doe" }); // assuming patient name
+  localStorage.setItem("appointments", JSON.stringify(appointments));
+  alert("Appointment booked successfully!");
+}
+
+function editProfile() {
+  alert("Profile edit mode activated. Changes saved.");
+}
+
+function logoutPatient() {
+  // Optional: clear login session
+  // localStorage.removeItem("loggedUser");
+
+  alert("Logging out...");
+  setTimeout(() => {
+    window.location.href = "login.html"; // redirect to login page
+  }, 600);
+}
+
+</script>
+
+</body>
+</html>

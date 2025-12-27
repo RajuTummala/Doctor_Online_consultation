@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pharmacist Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+
+  body {
+    background: #f3f4f6 !important; /* light gray */
+    font-family: 'Inter', sans-serif;
+  }
+
+  header {
+    background: #1f2937 !important; /* dark header */
+    color: white !important;
+  }
+
+  .sidebar {
+    background: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1) !important;
+  }
+
+  .menu-item {
+    background: #ffffff !important;
+    border-radius: 10px;
+    padding: 12px;
+    transition: 0.25s;
+  }
+  .menu-item:hover {
+    background: #e5e7eb !important; /* gray hover */
+  }
+
+  button, .btn {
+    background: #4f46e5 !important; /* indigo */
+    color: white !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+  }
+
+
+    .menu-item {
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+
+    .menu-item:hover {
+      background: #e7f0ff;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+
+  <!-- HEADER -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center">💊</div>
+        <div>
+          <p class="font-semibold text-lg">Pharmacist Portal</p>
+          <p class="text-sm text-gray-500">Prescription & Inventory Management</p>
+        </div>
+      </div>
+
+      <button onclick="logoutPharma()" class="text-gray-500 hover:text-red-600 text-xl">⎋ Logout</button>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-12 gap-8">
+
+    <!-- Sidebar -->
+    <aside class="col-span-3 bg-white p-4 rounded-xl shadow">
+      <h2 class="font-semibold text-lg mb-4">Menu</h2>
+
+      <div class="space-y-2">
+        <div class="menu-item" onclick="loadPrescriptionQueue()">📄 Prescription Queue</div>
+        <div class="menu-item" onclick="loadInventory()">📦 Inventory</div>
+        <div class="menu-item" onclick="loadOrderTracking()">🚚 Order Tracking</div>
+        <div class="menu-item" onclick="loadCompleted()">✔️ Completed Orders</div>
+        <div class="menu-item" onclick="loadReports()">📊 Reports & Alerts</div>
+        <div class="menu-item text-red-600" onclick="logoutPharma()">🚪 Logout</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <section id="mainContent" class="col-span-9 bg-white rounded-xl shadow p-6">
+      <h1 class="text-3xl font-bold">Welcome Pharmacist</h1>
+      <p class="text-gray-600 mt-2">Select a menu item from the left.</p>
+    </section>
+
+  </div>
+
+  <script>
+    /* -------------------------------
+       1️⃣ PRESCRIPTION QUEUE
+    --------------------------------*/
+    function loadPrescriptionQueue() {
+      let pres = JSON.parse(localStorage.getItem("prescriptions") || "[]");
+
+      let html = `
+        <h2 class="text-2xl font-bold mb-4">📄 Prescription Queue</h2>
+      `;
+
+      if (pres.length === 0) {
+        html += `<p>No prescriptions available.</p>`;
+      } else {
+        pres.forEach((p, i) => {
+          html += `
+            <div class="p-4 mb-4 bg-gray-100 rounded-xl shadow">
+              <h3 class="font-bold text-lg">${p.medicine}</h3>
+              <p>Patient: ${p.patient}</p>
+              <p>Doctor: ${p.doctor}</p>
+              <p>Status: <b>${p.status}</b></p>
+
+              <button onclick="markCompleted(${i})" class="bg-green-600 text-white px-3 py-1 rounded mt-3">
+                Mark as Completed
+              </button>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById("mainContent").innerHTML = html;
+    }
+
+    function markCompleted(i) {
+      let pres = JSON.parse(localStorage.getItem("prescriptions") || "[]");
+      pres[i].status = "completed";
+      localStorage.setItem("prescriptions", JSON.stringify(pres));
+      loadPrescriptionQueue();
+    }
+
+    /* -------------------------------
+       2️⃣ INVENTORY MANAGEMENT
+    --------------------------------*/
+    function loadInventory() {
+      let items = JSON.parse(localStorage.getItem("inventory") || "[]");
+
+      let html = `
+        <h2 class="text-2xl font-bold mb-4">📦 Inventory</h2>
+
+        <button onclick="addInventoryItem()" class="bg-blue-600 text-white px-4 py-2 rounded mb-4">
+          + Add Item
+        </button>
+      `;
+
+      if (items.length === 0) {
+        html += `<p>No inventory items available.</p>`;
+      } else {
+        items.forEach((item, i) => {
+          html += `
+            <div class="p-4 bg-gray-100 rounded shadow mb-3">
+              <h3 class="font-bold">${item.name}</h3>
+              <p>Stock: ${item.qty}</p>
+
+              <button onclick="stockIncrease(${i})" class="bg-green-600 text-white px-2 py-1 rounded">+</button>
+              <button onclick="stockDecrease(${i})" class="bg-red-600 text-white px-2 py-1 rounded">-</button>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById("mainContent").innerHTML = html;
+    }
+
+    function addInventoryItem() {
+      let name = prompt("Enter medicine name:");
+      if (!name) return;
+
+      let qty = prompt("Enter quantity:");
+      if (!qty || isNaN(qty)) return;
+
+      let items = JSON.parse(localStorage.getItem("inventory") || "[]");
+      items.push({ name, qty: parseInt(qty) });
+
+      localStorage.setItem("inventory", JSON.stringify(items));
+      loadInventory();
+    }
+
+    function stockIncrease(i) {
+      let items = JSON.parse(localStorage.getItem("inventory") || "[]");
+      items[i].qty++;
+      localStorage.setItem("inventory", JSON.stringify(items));
+      loadInventory();
+    }
+
+    function stockDecrease(i) {
+      let items = JSON.parse(localStorage.getItem("inventory") || "[]");
+      if (items[i].qty > 0) items[i].qty--;
+      localStorage.setItem("inventory", JSON.stringify(items));
+      loadInventory();
+    }
+
+    /* -------------------------------
+       3️⃣ ORDER TRACKING
+    --------------------------------*/
+    function loadOrderTracking() {
+      let html = `
+        <h2 class="text-2xl font-bold mb-4">🚚 Order Tracking</h2>
+
+        <ul class="space-y-3">
+          <li>Order #101 – In Transit</li>
+          <li>Order #102 – Delivered</li>
+          <li>Order #103 – Out for Delivery</li>
+        </ul>
+      `;
+
+      document.getElementById("mainContent").innerHTML = html;
+    }
+
+    /* -------------------------------
+       4️⃣ COMPLETED ORDERS
+    --------------------------------*/
+    function loadCompleted() {
+      let pres = JSON.parse(localStorage.getItem("prescriptions") || "[]")
+        .filter(p => p.status === "completed");
+
+      let html = `
+        <h2 class="text-2xl font-bold mb-4">✔️ Completed Orders</h2>
+      `;
+
+      if (pres.length === 0) {
+        html += "<p>No completed prescriptions.</p>";
+      } else {
+        pres.forEach(p => {
+          html += `
+            <div class="p-4 bg-green-100 rounded shadow mb-3">
+              <h3 class="font-bold">${p.medicine}</h3>
+              <p>Patient: ${p.patient}</p>
+              <p>Doctor: ${p.doctor}</p>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById("mainContent").innerHTML = html;
+    }
+
+    /* -------------------------------
+       5️⃣ ALERTS & REPORTS
+    --------------------------------*/
+    function loadReports() {
+      let html = `
+        <h2 class="text-2xl font-bold mb-4">📊 Reports & Alerts</h2>
+
+        <ul class="space-y-3">
+          <li>⚠ Low Stock: Paracetamol</li>
+          <li>⚠ Low Stock: Cough Syrup</li>
+          <li>✔ 4 prescriptions processed today</li>
+        </ul>
+      `;
+
+      document.getElementById("mainContent").innerHTML = html;
+    }
+
+    /* -------------------------------
+       LOGOUT
+    --------------------------------*/
+    function logoutPharma() {
+      alert("Logging out...");
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 600);
+    }
+  </script>
+
+</body>
+
+</html>
